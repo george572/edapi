@@ -2,7 +2,7 @@ require('dotenv/config')
 var express = require('express'), // Call express
     app = express(), // Define our app using express
     port = process.env.PORT || 8082, // Set the port
-    dbUrl = process.env.db,
+    dbUrl = process.env.DB,
     mongoose = require('mongoose'), // Call mongoose to interact with a MongoDB(Database) instance
     Task = require('./api/models/tasksModel'), // Created model loading here
     bodyParser = require('body-parser'); //Middleware to process incoming request body objects
