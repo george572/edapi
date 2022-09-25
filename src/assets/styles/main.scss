@@ -1,0 +1,9 @@
+@import "../styles/variables.scss";
+@import "../styles/reset.scss";
+
+body {
+	background-color: #FAFAFF;
+    max-width: 500px;
+    margin:0 auto;
+    padding:10px 0;
+}

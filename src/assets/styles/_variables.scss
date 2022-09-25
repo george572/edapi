@@ -1,0 +1,33 @@
+// $lightbg: #FAFAFF;
+$lightbg: #ffffff;
+$darkbg: #292639;
+
+$lightext:#0E204D;
+$darktext:#ffffff;
+
+$font:"Poppins";
+$radius:12px;
+
+$basebtn:#E9E9FF;
+$darkbtn:#1B143F;
+
+$blue:#3D4ABA;
+$purple:#7041EE;
+
+$orange: #FFA656;
+$green: #45B08A;
+$medium: 17px;
+$small: 13px;
+$large: 25px;
+$shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.v-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
