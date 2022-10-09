@@ -91,8 +91,6 @@ export default {
         this.user = this.allUsers.find(user => user.id === window.sessionStorage.getItem('userId'))
         this.tasks = await this.$store.dispatch('getTasks', window.sessionStorage.getItem('token'))
         this.userTasks = this.tasks.data.filter(task => task.assignee === this.user.id)
-        // this.incompleteTasks = this.allTasks.filter(task => task.status === 'pending')
-        // this.completedTasks = this.allTasks.filter(task => task.status === 'done')
        
     },
     methods: {

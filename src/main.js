@@ -11,7 +11,6 @@ const app = createApp()
 
 app.config.globalProperties.$axios = axiosInstance
 import router from './router'
-
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 import "../src/assets/styles/main.scss"

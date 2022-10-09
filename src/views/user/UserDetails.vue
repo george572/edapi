@@ -1,24 +1,33 @@
 <template>
-    <div class="admin-dashboard">
+    <div class="admin-dashboard" v-if="userData">
         <div class="admin-dashboard-header">
             <BaseLogo size="small" />
 			<BaseButton size="small" style="margin-top:0;" @click="$router.go(-1)">Back</BaseButton>
         </div>
         <div class="user-info-wrapper">
-            <h2>{{user}}'s Statistics</h2>
+            <h2>{{userData.firstName}}'s Statistics</h2>
             <div class="user-tasks-statistics">
-                <BaseButton class="task-btn">Tasks Done This week : 4</BaseButton>
-                <BaseButton class="task-btn">All Tasks Done : 12</BaseButton>
-                <p>Points: 50</p>
+                <BaseButton class="task-btn">All Tasks Done : {{tasksDone.length}}</BaseButton>
+                <p>{{userData.points}} Points</p>
                 <h2 style="padding-top:20px">Recent History</h2>
-                <ul>
-                    <li v-for="task in recentTasks" :key="task.name" class="task-desc" :class="{finished : task.status === 'finished', progress : task.status === 'progress'}">
-                        <p>Working On "{{task.name}}"</p>
-                        <p>Points : {{task.points}} </p>
-                        <p>Assigned At : {{task.assignedAt}}</p>
-                        <span class="badge">{{taskStatus(task)}}</span>
+                <ul v-if="tasksDone && tasksDone.length > 0">
+                    <li v-for="task in tasksDone" :key="task.id" class="task-desc" :class="{finished : task.status === 'done', progress : task.status === 'progress'}">
+                        <p>"{{task.name}}"</p>
+                        <p>{{task.points}} Points</p>
+                        <span class="badge">{{task.status}}</span>
                     </li>
                 </ul>
+                <p v-else>{{userData.firstName}} has not done any task recently</p>
+
+                    <h2 style="padding-top:20px">Assigned Tasks</h2>
+                    <ul v-if="tasksPending && tasksPending.length > 0">
+                        <li v-for="task in tasksPending" :key="task.id" class="task-desc" :class="{finished : task.status === 'done', progress : task.status === 'progress'}">
+                            <p>"{{task.name}}"</p>
+                            <p>{{task.points}} Points</p>
+                            <span class="badge">{{task.status}}</span>
+                        </li>
+                    </ul>
+                    <p v-else>No tasks are assigned to {{userData.firstName}} for this time</p>
             </div>
         </div>
     </div>
@@ -27,15 +36,31 @@
 <script>
 import BaseLogo from '@/components/BaseLogo.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import { mapGetters } from 'vuex'
+
     export default {
         name : "UserView",
         components: {
             BaseLogo,
             BaseButton
         },
+        computed: {
+            ...mapGetters([
+                'getAllUsers',
+                'tasks'
+            ]),
+            tasksDone() {
+                return this.userTasks.filter(task => task.status === 'done')
+            },
+            tasksPending() {
+                return this.userTasks.filter(task => task.status === 'pending')
+            }
+        },
         data() {
             return {
                 user: '',
+                userData: null,
+                userTasks: null,
                 recentTasks: [
                     {name: 'Clean the restaurant floor', points: 13, assignedAt: '12/23/2022', status: 'progress'},
                     {name: 'Wash Dishes', points: 13, assignedAt: '12/23/2022', status: 'finished'},
@@ -45,8 +70,12 @@ import BaseButton from '@/components/BaseButton.vue';
                 ]
             }
         },
-        mounted() {
+        async mounted() {
             this.user = this.$route.params.name
+            await this.$store.dispatch('getUsers', window.sessionStorage.getItem('token'))
+            await this.$store.dispatch('getTasks', window.sessionStorage.getItem('token'))
+            this.userData = this.getAllUsers.data.find(user => user.id === this.user)
+            this.userTasks = this.tasks.data.filter(task => task.assignee === this.user)
         },
         methods: {
             taskStatus(task) {
@@ -74,6 +103,9 @@ import BaseButton from '@/components/BaseButton.vue';
 	justify-content: space-between;
 	align-items: center;
 }
+ul {
+    width:100%;
+}
 .admin-dashboard {
 	box-sizing: border-box;
 	padding: 0 10px;
@@ -82,6 +114,7 @@ import BaseButton from '@/components/BaseButton.vue';
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    width: 100%;
     p {
         font-size: 20px;
         margin: 5px 0;
@@ -104,6 +137,8 @@ import BaseButton from '@/components/BaseButton.vue';
     background-color: $darkbg;
     margin:7px 0;
     border-radius: 10px;
+    width:100%;
+    min-height: 100px;
     &.progress {
         background-color: $orange;
     }

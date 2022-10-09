@@ -12,7 +12,8 @@
             <ul>
                 <li v-for="task in pendingForApproval" :key="task.id" class="week-title">
                     <div class="task-body">
-                        <span class="task-name">{{task.name}}</span>
+                        <span class="task-name">Task : {{task.name}}</span>
+                        <span class="task-name">Assignee : {{userName(task.assignee)}}</span>
                         <span class="task-prio">Priority: {{task.priority}}</span>
                         <span class="task-points">Points : {{task.points}}</span>
                     </div>
@@ -45,7 +46,7 @@
             <h2 class="week-title productivity">Activity this week:</h2>
             <ul class="employees-task-completion">
                 <li v-for="user in employees" :key="user.points">
-                    <span class="user-badge">{{user.firstName}}</span> completed {{usersCompletedTask(user.id)}} tasks. Has {{user.points}} points.
+                    <span class="user-badge" @click="$router.push(`user-details/${user.id}`)">{{user.firstName}}</span> completed {{usersCompletedTask(user.id)}} tasks. Has {{user.points}} points.
                 </li>
                 <!-- users click go to users page, disabled now, in development  @click="$router.push(`user-details/${user.firstName}`)" -->
             </ul>
@@ -110,6 +111,10 @@ export default {
         createTask() {
             this.$router.push('/create-task')
         },
+        userName(userId) {
+            let user = this.employees.find(emp => emp.id === userId)
+            return user.firstName
+        },
         usersCompletedTask(userId) {
            const completedTasks = this.completedTasksCount.filter(task => task.assignee === userId)
            return completedTasks.length
@@ -165,6 +170,11 @@ export default {
     box-sizing: border-box;
     cursor: pointer;
 }
+.task-status {
+    span {
+        font-size: 16px;
+    }
+}
 .task-status-header {
     display: flex;
     align-items: center;
@@ -213,6 +223,8 @@ export default {
         display: block;
         width:100%;
         text-align: left;
+        margin: 4px 0;
+        font-size: 16px;
     }
 }
 .blue-tasks {
