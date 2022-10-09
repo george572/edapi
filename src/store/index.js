@@ -1,5 +1,5 @@
 import { createStore } from 'vuex'
-import { signIn, users, addTask, getTasks, editTask, getUserTasks } from '@/api/users';
+import { signIn, users, addTask, getTasks, editTask, getUserTasks, updateTask, updateUserPoints, deleteTask } from '@/api/users';
 export default createStore({
   state: {
     account: null,
@@ -55,6 +55,16 @@ export default createStore({
         context.commit('setUsers', [])
       }
     },
+    async updateTask(state, payload) {
+      try {
+        const response = await updateTask(payload)
+        console.log(payload)
+        console.log(response, 'changed task status')
+      }
+      catch (err) {
+        console.log('error')
+      }
+    },
     async addTask(state , payload) {
       try {
         const response = await addTask(payload.token, payload.task)
@@ -85,7 +95,26 @@ export default createStore({
     async editTask(context, payload) {
       try {
         const response = await editTask(payload)
-        console.log(response, 'viuexx')
+        console.log(response)
+      }
+      catch (err) {
+        context.commit('rame')
+      }
+    },
+    async deleteTask(context, payload) {
+      try {
+        const response = await deleteTask(payload)
+        console.log(response)
+        context.dispatch('getTasks', response)
+      }
+      catch (err) {
+        context.commit('rame')
+      }
+    },
+    async addPoints(context, payload) {
+      try {
+        const response = await updateUserPoints(payload)
+        console.log(response)
       }
       catch (err) {
         context.commit('rame')

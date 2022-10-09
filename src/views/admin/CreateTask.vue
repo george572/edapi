@@ -9,19 +9,19 @@
 			<form class="form task-form">
 				<label for="">
 					<span>Task Name</span>
-					<input type="text" v-model="task.name" placeholder="Task Name">
+					<input type="text" v-model="task.name" placeholder="Write task name...">
 				</label>
 				<label for="">
-					<span>Task Asignee</span>
+					<span>Task Asignee ( You can leave it blank )</span>
 					<select name="" id="" v-model="task.assignee">
-						<option value="" disabled selected>Click to choose from list</option>
+						<option value="" disabled selected>Click to choose</option>
 						<option :value="user.id" v-for="user in usersArray" :key="user.firstName">{{ user.firstName }}</option>
 					</select>
 				</label>
 				<label for="">
 					<span>Task Priority</span>
 					<select name="" id="" v-model="task.priority">
-						<option value="" disabled selected>Click to choose from list</option>
+						<option value="" disabled selected>Click to choose</option>
 						<option value="low">Low</option>
 						<option value="medium">Medium</option>
 						<option value="high">High</option>
@@ -29,12 +29,13 @@
 				</label>
 				<label for="">
 					<span>Task Points</span>
-					<input type="number" v-model="task.points">
+					<input type="number" v-model="task.points" placeholder="Write a number">
 				</label>
 				<BaseButton size="small" @click.prevent="createTask">Create</BaseButton>
 			</form>
 			<span v-if="success" class="success-msg">Task Created Successfully!</span>
 			<BaseButton v-if="success" size="small" @click="$router.go(-1)">Back</BaseButton>
+			<span class="resp-message">{{taskResponseMessage}}</span>
 		</div>
 	</div>
 </template>
@@ -52,6 +53,7 @@ export default {
 	data() {
 		return {
 			success: false,
+			taskResponseMessage: '',
 			task: {
 				name: '',
 				assignee: '',
@@ -66,8 +68,9 @@ export default {
 		async createTask() {
 			if(this.task.name.length > 2 && this.task.asignee !== '' && this.task.points !== '') {
 				await this.$store.dispatch('addTask', { token: window.sessionStorage.getItem('token'), task: this.task })
+				this.taskResponseMessage = 'Task Created Successfully!'
 			} else {
-				console.log('error!')
+				this.taskResponseMessage = "Error!"
 			}
 		}
 	},
@@ -78,12 +81,12 @@ export default {
 	},
 	async mounted() {
 		await this.$store.dispatch('getUsers', window.sessionStorage.getItem('token'))
-		this.usersArray = this.getAllUsers.data
+		this.usersArray = this.getAllUsers.data.filter(user => user.role === 'user')
 	},
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "../../assets/styles/variables";
 
 .admin-dashboard {
@@ -122,6 +125,33 @@ export default {
 	align-items: flex-start;
 	margin-top: 50px;
 	padding: 0;
+	display: flex;
+	flex-direction: column;
+	label {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		padding-bottom: 10px;
+		width:100%;
+		span {
+			padding-bottom: 5px;
+		}
+		input, select {
+			max-width: 320px;
+			width: 100%;
+			margin: 10px 0;
+			height: 50px;
+			border: none;
+			box-sizing: border-box;
+			padding: 10px 20px;
+			background-color: #ffffff;
+			border-radius: 12px;
+			color: #0E204D;
+			font-size: 13px;
+			font-family: "Poppins";
+			box-shadow: 0 2px 4px 0 rgb(0 0 0 / 10%);
+		}
+	}
 }
 
 select {
@@ -135,5 +165,11 @@ select {
 	font-size: $medium;
 	margin-top: 20px;
 	font-weight: bold;
+}
+.resp-message {
+	font-size: $medium;
+	padding-top: 20px;
+	padding-left: 10px;
+	font-size: $large;
 }
 </style>

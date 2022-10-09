@@ -7,26 +7,47 @@
         <p class="time-info">{{date}}</p>
         <p class="time-info">{{daysLeftBeforeWeekEnds}} days left before the week ends </p>
         <div class="general-task-status">
-            <h2 class="week-title">This week:</h2>
+            <h2 class="week-title">Task Approval Requests:</h2>
+            <span v-if="pendingForApproval.length === 0">No tasks are requesting the approval</span>
+            <ul>
+                <li v-for="task in pendingForApproval" :key="task.id" class="week-title">
+                    <div class="task-body">
+                        <span class="task-name">{{task.name}}</span>
+                        <span class="task-prio">Priority: {{task.priority}}</span>
+                        <span class="task-points">Points : {{task.points}}</span>
+                    </div>
+                    <div class="task-status">
+                        <span>Status:</span>
+                        <select name="" id="" v-model="task.status"
+                            @change="approveTask(task)">
+                            <option :value="task.status" disabled selected>{{task.status === 'waitingapproval' ? 'pending' : ''}}</option>
+                            <option value="done">Approve</option>
+                        </select>
+                    </div>
+                </li>
+            </ul>
+
+            <h2 class="week-title">This week: {{allTasks.length}} Tasks</h2>
             <div class="tasks-status" @click="$router.push({path : 'tasks', query: { view: 'completed' }})">
                 <div class="task-status-header">
                     <img src="../../assets/images/check.svg" alt="">
                     <p>Tasks completed</p>
                 </div>
-                <p class="tasks-amount">{{completedTasks.length}}</p>
+                <p class="tasks-amount">{{completedTasksCount.length}}</p>
             </div>
             <div class="tasks-status" @click="$router.push({path : 'tasks',query: { view: 'all' }})">
                 <div class="task-status-header">
                     <div class="task-badge"></div>
-                    <p>Total Tasks</p>
+                    <p>Incomplete Tasks</p>
                 </div>
-                <p class="tasks-amount blue-tasks">{{allTasks.length}}</p>
+                <p class="tasks-amount blue-tasks">{{pendingTasksCount.length}}</p>
             </div>
-            <h2 class="week-title productivity">Productivity this week:</h2>
+            <h2 class="week-title productivity">Activity this week:</h2>
             <ul class="employees-task-completion">
-                <li v-for="user in usersArray" :key="user.name">
-                    <span class="user-badge" @click="$router.push(`user-details/${user.firstName}`)">{{user.firstName}}</span> finished 9 tasks. Has 35 points.
+                <li v-for="user in employees" :key="user.points">
+                    <span class="user-badge">{{user.firstName}}</span> completed {{usersCompletedTask(user.id)}} tasks. Has {{user.points}} points.
                 </li>
+                <!-- users click go to users page, disabled now, in development  @click="$router.push(`user-details/${user.firstName}`)" -->
             </ul>
         </div>
     </div>
@@ -59,6 +80,18 @@ export default {
             'getAllUsers',
             'tasks'
         ]),
+        pendingForApproval() {
+            return this.allTasks.filter(task => task.status === 'waitingapproval')
+        },
+        pendingTasksCount() {
+            return this.allTasks.filter(task => task.status === 'pending')
+        },
+        completedTasksCount() {
+            return this.allTasks.filter(task => task.status === 'done')
+        },
+        employees() {
+            return this.usersArray.filter(user => user.role === 'user')
+        }
     },
     async mounted() {
         await this.$store.dispatch('getUsers', window.sessionStorage.getItem('token'))
@@ -70,9 +103,30 @@ export default {
        
     },
     methods: {
+        usersPoints(userId) {
+            const user = this.getAllUsers.data.find(user => user.id === userId)
+            return user.points
+        },
         createTask() {
             this.$router.push('/create-task')
-        }
+        },
+        usersCompletedTask(userId) {
+           const completedTasks = this.completedTasksCount.filter(task => task.assignee === userId)
+           return completedTasks.length
+        },
+        async approveTask(task) {
+            const data = JSON.stringify({
+                "status": task.status
+            });
+            //find user on which this task is assigned
+            const user = this.usersArray.find(user => user.id === task.assignee)
+            const points = JSON.stringify({
+                "points": Number(user.points) + task.points
+            })
+            await this.$store.dispatch('updateTask', {id: task.id, data: data})
+            await this.$store.dispatch('addPoints', {id: task.assignee, data: points})
+            this.usersPoints(task.assignee)
+        },
     }
 }
 </script>
@@ -147,6 +201,20 @@ export default {
     text-align: left;
     margin: 20px 0;
 }
+.task-body {
+    width:100%;
+    min-height:80px;
+    background-color: white;
+    border-radius: $radius;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    span {
+        display: block;
+        width:100%;
+        text-align: left;
+    }
+}
 .blue-tasks {
     background-color: $blue;
 }
@@ -187,4 +255,20 @@ export default {
     background-color: $purple;
     color:$darktext;
 }
+input, select {
+    max-width: 200px;
+    width: 100%;
+    margin: 10px 0;
+    margin-left: 10px;
+    height: 50px;
+    border: none;
+    box-sizing: border-box;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    color: #0E204D;
+    font-size: 13px;
+    font-family: "Poppins";
+    box-shadow: 0 2px 4px 0 rgb(0 0 0 / 10%);
+    }
 </style>

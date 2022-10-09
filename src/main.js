@@ -17,4 +17,5 @@ import router from './router'
 import "../src/assets/styles/main.scss"
 
 import store from './store'
+import './registerServiceWorker'
 createApp(App).use(store).use(router).mount('#app')

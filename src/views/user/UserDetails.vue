@@ -57,7 +57,7 @@ import BaseButton from '@/components/BaseButton.vue';
 </script>
 
 <style scoped lang="scss">
-@import "../assets/styles/variables";
+@import "../../assets/styles/variables";
 .user-info-wrapper {
     margin-top: 50px;
     display: flex;

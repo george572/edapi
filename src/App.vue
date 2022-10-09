@@ -1,9 +1,6 @@
 <template>
-  <!-- <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav> -->
-  <router-view/>
+  <h2 v-if="$route.name !== 'home'" class="log-out" @click="$router.push({ path: '/' })" style="font-weight:bold">LOG OUT</h2>
+  <router-view/>  
 </template>
 
 <style>
@@ -26,5 +23,15 @@ nav a {
 
 nav a.router-link-exact-active {
   color: #42b983;
+}
+.log-out {
+  position: absolute;
+  top: 80px;
+  right: 15px;
+  background-color: #292639;
+  color:white;
+  padding:10px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 </style>
